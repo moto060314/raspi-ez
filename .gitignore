@@ -1,0 +1,22 @@
+# Node.js関連
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript関連
+*.tsbuildinfo
+
+# Vite関連
+dist/
+.vite/
+
+# Electron関連
+out/
+build/
+
+# OS/IDE関連
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
