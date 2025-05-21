@@ -30,6 +30,9 @@
       "electron/**/*",
       "node_modules/**/*",
       "package.json"
-    ]
+    ],
+    "win": {
+      "target": "nsis"
+    }
   }
 }
