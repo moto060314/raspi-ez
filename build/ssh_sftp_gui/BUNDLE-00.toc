@@ -1,0 +1,3 @@
+([('ssh_sftp_gui',
+   '/Users/motonobunakao/raspi-ez/dist/ssh_sftp_gui',
+   'EXECUTABLE')],)
