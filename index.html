@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>raspi-ez</title>
+    <!-- セキュリティ警告対策: CSPを追加 -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: http: https:;"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <!--
+      注意:
+      このアプリはElectronでのみ動作します。
+      Vite開発サーバー(ブラウザ)で直接 http://localhost:5173/ にアクセスしても
+      window.electronAPI は存在しません。
+      必ず `yarn dev` でElectron経由で起動してください。
+    -->
+  </body>
+</html>
