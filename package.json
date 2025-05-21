@@ -8,6 +8,7 @@
     "build": "vite build && electron-builder"
   },
   "dependencies": {
+    "@novnc/novnc": "^1.6.0",
     "node-pty": "^1.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

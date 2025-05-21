@@ -1,57 +1,40 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
-// window.electronAPIの型をanyで宣言
 declare global {
   interface Window {
-    electronAPI: any;
+    RFB: any;
   }
 }
 
 const VncViewer = () => {
-  const canvasRef = useRef(null);
-
+  const canvasParentRef = useRef<HTMLDivElement>(null);
   const [host, setHost] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [user, setUser] = useState(""); // ユーザーID用
+  const [password, setPassword] = useState(""); // パスワード用
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!connected) return;
-    if (!window.electronAPI) {
-      console.error(
-        "electronAPI is not defined. このアプリはElectron上でのみ動作します。"
-      );
-      return;
-    }
-
-    window.electronAPI.vncConnect({ host, port: 5900, username, password });
-
-    window.electronAPI.onVncData((data: ArrayBuffer) => {
-      // ここでnoVNCや独自デコーダにデータを渡す
-      // 例: noVNCライブラリを使う場合はここで処理
-    });
-
-    return () => {
-      window.electronAPI.vncDisconnect();
-    };
-  }, [connected, host, username, password]);
+  const rfbRef = useRef<any>(null);
 
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault();
     setConnecting(true);
     setError(null);
+
     try {
-      await window.electronAPI.vncConnect({
-        host,
-        port: 5900,
-        username,
-        password,
+      if (typeof window.RFB !== "function") {
+        throw new Error(
+          "noVNC (RFB) ライブラリが正しく読み込まれていません。index.htmlの<script>タグを確認してください。"
+        );
+      }
+      const wsUrl = `ws://localhost:6080/?host=${host}&port=5900`;
+      rfbRef.current = new window.RFB(canvasParentRef.current!, wsUrl, {
+        credentials: { username: user, password: password },
       });
-      setConnected(true);
-    } catch (e) {
-      setError("接続できませんでした");
+      rfbRef.current.addEventListener("connect", () => setConnected(true));
+      rfbRef.current.addEventListener("disconnect", () => setConnected(false));
+    } catch (e: any) {
+      setError("接続できませんでした: " + (e?.message ?? e));
     } finally {
       setConnecting(false);
     }
@@ -70,31 +53,31 @@ const VncViewer = () => {
           />
           <input
             type="text"
-            placeholder="ユーザーID"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
+            placeholder="ユーザーID（任意）"
+            value={user}
+            onChange={(e) => setUser(e.target.value)}
+            style={{ marginLeft: 8 }}
           />
           <input
             type="password"
             placeholder="パスワード"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
+            style={{ marginLeft: 8 }}
           />
-          <button type="submit" disabled={connecting}>
+          <button type="submit" disabled={connecting} style={{ marginLeft: 8 }}>
             接続
           </button>
           {connecting && <span>接続中...</span>}
-          {error && <span style={{ color: "red" }}>{error}</span>}
+          {error && (
+            <span style={{ color: "red", marginLeft: 8 }}>{error}</span>
+          )}
         </form>
       )}
       <h3>VNC Viewer</h3>
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={600}
-        style={{ border: "1px solid #ccc" }}
+      <div
+        ref={canvasParentRef}
+        style={{ width: 800, height: 600, border: "1px solid #ccc" }}
       />
     </div>
   );

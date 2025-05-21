@@ -7,12 +7,16 @@
     <!-- セキュリティ警告対策: CSPを追加 -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: http: https:;"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: http: https:;"
     />
+    <!-- CDNのパスを修正: app/rfb.js → vnc.js -->
   </head>
   <body>
     <div id="root"></div>
+    <!-- ...existing code... -->
     <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/public/noVNC-1.6.0/vnc.js"></script>
+    <!-- ...existing code... -->
     <!--
       注意:
       このアプリはElectronでのみ動作します。

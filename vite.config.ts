@@ -7,5 +7,8 @@ export default defineConfig({
   build: {
     outDir: "dist",
     emptyOutDir: true,
+    rollupOptions: {
+      external: ["@novnc/novnc", "@novnc/novnc/lib/rfb"], // ← 追加
+    },
   },
 });
