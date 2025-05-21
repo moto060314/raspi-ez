@@ -368,6 +368,9 @@ class SSHSFTPClient(QWidget):
         self.shell = None
         self.clipboard_local_path = None
         self.clipboard_remote_path = None
+        # --- コマンド履歴用 ---
+        self.command_history = []
+        self.history_index = -1
         self.init_ui()
 
     def init_ui(self):
@@ -398,6 +401,8 @@ class SSHSFTPClient(QWidget):
         self.ssh_input = QLineEdit()
         self.ssh_input.setPlaceholderText("コマンドを入力してEnter")
         self.ssh_input.returnPressed.connect(self.send_command)
+        # --- キーイベントフック ---
+        self.ssh_input.installEventFilter(self)
         layout.addWidget(QLabel("SSH Console"))
         layout.addWidget(self.ssh_output)
         layout.addWidget(self.ssh_input)
@@ -423,12 +428,40 @@ class SSHSFTPClient(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "接続エラー", str(e))
 
+    def eventFilter(self, obj, event):
+        # SSH入力欄で↑↓キーで履歴参照
+        from PyQt5.QtCore import QEvent
+        from PyQt5.QtGui import QKeyEvent
+        if obj == self.ssh_input and event.type() == QEvent.KeyPress:
+            if event.key() == Qt.Key_Up:
+                if self.command_history:
+                    if self.history_index == -1:
+                        self.history_index = len(self.command_history) - 1
+                    elif self.history_index > 0:
+                        self.history_index -= 1
+                    self.ssh_input.setText(self.command_history[self.history_index])
+                return True
+            elif event.key() == Qt.Key_Down:
+                if self.command_history and self.history_index != -1:
+                    if self.history_index < len(self.command_history) - 1:
+                        self.history_index += 1
+                        self.ssh_input.setText(self.command_history[self.history_index])
+                    else:
+                        self.history_index = -1
+                        self.ssh_input.clear()
+                return True
+        return super().eventFilter(obj, event)
+
     def send_command(self):
         if not self.shell:
             self.ssh_output.append("SSH未接続")
             return
         cmd = self.ssh_input.text()
         self.ssh_input.clear()
+        # --- 履歴に追加 ---
+        if cmd and (not self.command_history or self.command_history[-1] != cmd):
+            self.command_history.append(cmd)
+        self.history_index = -1
         try:
             self.shell.send(cmd + "\n")
             import time
