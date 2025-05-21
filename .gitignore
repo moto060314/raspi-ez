@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtualenv
+env/
+venv/
+ENV/
+VENV/
+.venv/
+.env/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Qt
+*.pyqt5rc
+
+# その他
+*.log
+*.bak
+*.swp
