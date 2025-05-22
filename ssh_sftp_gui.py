@@ -9,6 +9,8 @@ from PyQt5.QtCore import Qt, QDir, QModelIndex
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 import os
 
+import re
+
 # --- 追加: socketioクライアントのインポート ---
 # pip install "python-socketio[client]"
 import socketio
@@ -465,10 +467,15 @@ class SSHSFTPClient(QWidget):
         try:
             self.shell.send(cmd + "\n")
             import time
+            import re  # 追加
             time.sleep(0.2)  # 少し待つ
             output = ""
             while self.shell.recv_ready():
                 output += self.shell.recv(4096).decode(errors="ignore")
+            # --- 制御文字を除去 ---
+            output = re.sub(r'\x1b\[[0-9;?]*[a-zA-Z]', '', output)  # ANSIエスケープシーケンス除去
+            output = re.sub(r'\x1b\][^\a]*\a', '', output)           # OSC除去
+            output = re.sub(r'\x1b.', '', output)                    # その他ESC
             self.ssh_output.append(f"$ {cmd}\n{output}")
         except Exception as e:
             self.ssh_output.append(f"コマンド実行エラー: {e}")
