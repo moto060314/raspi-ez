@@ -30,3 +30,8 @@ Thumbs.db
 *.log
 *.bak
 *.swp
+
+# パッケージング関連
+dist/
+build/
+*.spec
